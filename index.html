@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pour Sonia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blush:#fce8ee;
+    --blush-deep:#f6d3de;
+    --rose:#e0607e;
+    --rose-deep:#c23a5c;
+    --plum:#4a2138;
+    --cream:#fffaf8;
+    --gold:#d6a35c;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{
+    height:100%;
+    background:
+      radial-gradient(circle at 20% 20%, var(--blush-deep), transparent 55%),
+      radial-gradient(circle at 80% 75%, var(--blush-deep), transparent 55%),
+      var(--blush);
+    font-family:'Cormorant Garamond', serif;
+    color:var(--plum);
+    overflow-x:hidden;
+  }
+  #hearts{
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    pointer-events:none;
+    z-index:1;
+  }
+
+  /* ---------- ENVELOPE SCENE ---------- */
+  #scene1{
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:28px;
+    position:relative;
+    z-index:2;
+    padding:24px;
+    transition:opacity .8s ease, transform .8s ease;
+  }
+  #scene1.hide{
+    opacity:0;
+    transform:scale(.94);
+    pointer-events:none;
+    position:absolute;
+    inset:0;
+  }
+  .eyebrow{
+    font-family:'Dancing Script', cursive;
+    font-size:1.6rem;
+    color:var(--rose-deep);
+    letter-spacing:.5px;
+  }
+  .envelope-wrap{
+    cursor:pointer;
+    perspective:1200px;
+  }
+  .envelope{
+    width:min(78vw, 320px);
+    aspect-ratio:1.55/1;
+    position:relative;
+    filter:drop-shadow(0 18px 30px rgba(194,58,92,.25));
+    transition:transform .35s ease;
+  }
+  .envelope-wrap:hover .envelope{ transform:translateY(-4px); }
+  .env-body{
+    position:absolute;inset:0;
+    background:var(--cream);
+    border-radius:6px;
+    border:1px solid #f0c9d5;
+    overflow:hidden;
+  }
+  .env-body::before,.env-body::after{
+    content:"";
+    position:absolute;
+    top:0;
+    width:0;height:0;
+    border-top:70px solid #fbeaf0;
+  }
+  .env-body::before{
+    left:0;
+    border-left:0 solid transparent;
+    border-right:52.5% solid transparent;
+  }
+  .env-body::after{
+    right:0;
+    border-right:0 solid transparent;
+    border-left:52.5% solid transparent;
+  }
+  .env-flap{
+    position:absolute;
+    top:0;left:0;right:0;
+    height:62%;
+    background:linear-gradient(135deg, #f3c9d7, #eeb3c6);
+    clip-path:polygon(0 0, 100% 0, 50% 68%);
+    transform-origin:top;
+    transition:transform .6s cubic-bezier(.6,.1,.3,1);
+    z-index:3;
+  }
+  .envelope.open .env-flap{
+    transform:rotateX(180deg);
+  }
+  .seal{
+    position:absolute;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    width:46px;height:46px;
+    background:radial-gradient(circle at 35% 30%, var(--rose), var(--rose-deep));
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;
+    color:#fff2f5;
+    box-shadow:0 3px 8px rgba(194,58,92,.4);
+    z-index:4;
+    transition:opacity .25s ease .1s;
+  }
+  .envelope.open .seal{ opacity:0; }
+  .hint{
+    font-size:1.05rem;
+    color:#8a5064;
+    letter-spacing:.3px;
+  }
+
+  /* ---------- BLOOM SCENE ---------- */
+  #scene2{
+    position:relative;
+    z-index:2;
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    padding:60px 20px 90px;
+    opacity:0;
+    transform:translateY(24px);
+    transition:opacity 1s ease .2s, transform 1s ease .2s;
+    cursor:pointer;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #scene2.show{
+    opacity:1;
+    transform:translateY(0);
+  }
+  .bloom-title{
+    font-family:'Dancing Script', cursive;
+    font-size:clamp(2.4rem,7vw,3.6rem);
+    color:var(--rose-deep);
+    text-align:center;
+  }
+  .bloom-msg{
+    max-width:520px;
+    text-align:center;
+    font-size:1.2rem;
+    line-height:1.65;
+    color:#5a2c40;
+    padding:0 8px;
+  }
+  .bloom-flirt{
+    max-width:480px;
+    text-align:center;
+    font-family:'Dancing Script', cursive;
+    font-size:1.5rem;
+    line-height:1.5;
+    color:var(--rose-deep);
+    padding:0 8px;
+    margin-top:-4px;
+  }
+  .bouquet{
+    position:relative;
+    width:min(90vw, 380px);
+    margin-bottom:2px;
+    opacity:0;
+    transform:scale(.4) translateY(10px);
+    animation:bouquet-pop 1s cubic-bezier(.2,.9,.3,1.25) forwards;
+    animation-delay:.5s;
+    filter:drop-shadow(0 18px 22px rgba(92,15,40,.35));
+  }
+  .bouquet svg{
+    width:100%;
+    height:auto;
+    display:block;
+  }
+  @keyframes bouquet-pop{
+    0%{ opacity:0; transform:scale(.4) translateY(10px); }
+    60%{ opacity:1; transform:scale(1.06) translateY(0); }
+    100%{ opacity:1; transform:scale(1) translateY(0); }
+  }
+  .bloom-hint{
+    font-size:1.05rem;
+    color:#8a5064;
+    letter-spacing:.3px;
+    text-align:center;
+  }
+  .burst-item{
+    position:fixed;
+    top:0;left:0;
+    font-size:26px;
+    pointer-events:none;
+    z-index:5;
+    will-change:transform,opacity;
+    animation:burst-fly var(--dur) cubic-bezier(.2,.7,.3,1) forwards;
+  }
+  @keyframes burst-fly{
+    0%{
+      transform:translate(var(--x0),var(--y0)) scale(.3) rotate(0deg);
+      opacity:1;
+    }
+    70%{
+      opacity:1;
+    }
+    100%{
+      transform:translate(var(--x1),var(--y1)) scale(var(--scale)) rotate(var(--rot));
+      opacity:0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    #scene1,#scene2,.envelope.open .env-flap,.envelope.open .seal{transition:none;}
+    .burst-item{animation:none; opacity:0;}
+    .bouquet{animation:none; opacity:1; transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="hearts"></canvas>
+
+<section id="scene1">
+  <div class="envelope-wrap" id="envelopeWrap">
+    <div class="envelope" id="envelope">
+      <div class="env-body"></div>
+      <div class="env-flap"></div>
+      <div class="seal">♥</div>
+    </div>
+  </div>
+  <div class="hint">Touche l'enveloppe pour l'ouvrir</div>
+</section>
+
+<section id="scene2">
+  <div class="bouquet" id="bouquet">
+    <svg viewBox="0 0 380 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="paperGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#b3234a"/>
+          <stop offset="50%" stop-color="#8f1638"/>
+          <stop offset="100%" stop-color="#5c0f28"/>
+        </linearGradient>
+        <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#e8c07d"/>
+          <stop offset="100%" stop-color="#b4813a"/>
+        </linearGradient>
+        <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7fae6f"/>
+          <stop offset="100%" stop-color="#4a7c47"/>
+        </linearGradient>
+
+        <path id="petal" d="M0,0 C-13,-15 -15,-35 0,-50 C15,-35 13,-15 0,0 Z"/>
+        <path id="leaf" d="M0,0 C-9,-6 -10,-22 0,-30 C10,-22 9,-6 0,0 Z"/>
+
+        <g id="roseRed">
+          <use href="#petal" fill="#e0294f" transform="rotate(0) scale(1.15)"/>
+          <use href="#petal" fill="#e0294f" transform="rotate(60) scale(1.15)"/>
+          <use href="#petal" fill="#e0294f" transform="rotate(120) scale(1.15)"/>
+          <use href="#petal" fill="#c81f45" transform="rotate(180) scale(1.15)"/>
+          <use href="#petal" fill="#c81f45" transform="rotate(240) scale(1.15)"/>
+          <use href="#petal" fill="#c81f45" transform="rotate(300) scale(1.15)"/>
+          <use href="#petal" fill="#9c1338" transform="rotate(30) scale(0.72)"/>
+          <use href="#petal" fill="#9c1338" transform="rotate(102) scale(0.72)"/>
+          <use href="#petal" fill="#9c1338" transform="rotate(174) scale(0.72)"/>
+          <use href="#petal" fill="#7a0e2c" transform="rotate(246) scale(0.72)"/>
+          <use href="#petal" fill="#7a0e2c" transform="rotate(318) scale(0.72)"/>
+          <circle r="6" fill="#4a0a1e"/>
+        </g>
+
+        <g id="roseDeep">
+          <use href="#petal" fill="#9c1338" transform="rotate(0) scale(1.15)"/>
+          <use href="#petal" fill="#9c1338" transform="rotate(60) scale(1.15)"/>
+          <use href="#petal" fill="#9c1338" transform="rotate(120) scale(1.15)"/>
+          <use href="#petal" fill="#7a0e2c" transform="rotate(180) scale(1.15)"/>
+          <use href="#petal" fill="#7a0e2c" transform="rotate(240) scale(1.15)"/>
+          <use href="#petal" fill="#7a0e2c" transform="rotate(300) scale(1.15)"/>
+          <use href="#petal" fill="#5c0824" transform="rotate(30) scale(0.72)"/>
+          <use href="#petal" fill="#5c0824" transform="rotate(102) scale(0.72)"/>
+          <use href="#petal" fill="#5c0824" transform="rotate(174) scale(0.72)"/>
+          <use href="#petal" fill="#3d0518" transform="rotate(246) scale(0.72)"/>
+          <use href="#petal" fill="#3d0518" transform="rotate(318) scale(0.72)"/>
+          <circle r="6" fill="#26030f"/>
+        </g>
+
+        <g id="rosePink">
+          <use href="#petal" fill="#f8a1b8" transform="rotate(0) scale(1.15)"/>
+          <use href="#petal" fill="#f8a1b8" transform="rotate(60) scale(1.15)"/>
+          <use href="#petal" fill="#f8a1b8" transform="rotate(120) scale(1.15)"/>
+          <use href="#petal" fill="#f06292" transform="rotate(180) scale(1.15)"/>
+          <use href="#petal" fill="#f06292" transform="rotate(240) scale(1.15)"/>
+          <use href="#petal" fill="#f06292" transform="rotate(300) scale(1.15)"/>
+          <use href="#petal" fill="#c94272" transform="rotate(30) scale(0.72)"/>
+          <use href="#petal" fill="#c94272" transform="rotate(102) scale(0.72)"/>
+          <use href="#petal" fill="#c94272" transform="rotate(174) scale(0.72)"/>
+          <use href="#petal" fill="#a02a58" transform="rotate(246) scale(0.72)"/>
+          <use href="#petal" fill="#a02a58" transform="rotate(318) scale(0.72)"/>
+          <circle r="6" fill="#7a1a40"/>
+        </g>
+      </defs>
+
+      <!-- paper wrap -->
+      <path d="M190,180 C145,215 115,270 105,345 L275,345 C265,270 235,215 190,180 Z" fill="url(#paperGrad)"/>
+      <path d="M150,212 C138,262 128,302 120,345" stroke="rgba(255,255,255,.12)" stroke-width="2" fill="none"/>
+      <path d="M230,212 C242,262 252,302 260,345" stroke="rgba(255,255,255,.12)" stroke-width="2" fill="none"/>
+      <path d="M190,190 C186,250 186,300 188,345" stroke="rgba(255,255,255,.08)" stroke-width="2" fill="none"/>
+
+      <!-- ribbon -->
+      <rect x="145" y="177" width="90" height="24" rx="2" fill="url(#ribbonGrad)" transform="rotate(-2 190 189)"/>
+      <path d="M190,187 C165,175 150,190 155,205 C160,218 180,210 190,187 Z" fill="url(#ribbonGrad)"/>
+      <path d="M190,187 C215,175 230,190 225,205 C220,218 200,210 190,187 Z" fill="url(#ribbonGrad)"/>
+
+      <!-- leaves tucked in -->
+      <use href="#leaf" transform="translate(55,160) rotate(-50) scale(1.5)"/>
+      <use href="#leaf" transform="translate(325,155) rotate(50) scale(1.5)"/>
+      <use href="#leaf" transform="translate(140,195) rotate(-70) scale(1.4)"/>
+      <use href="#leaf" transform="translate(240,193) rotate(70) scale(1.4)"/>
+      <use href="#leaf" transform="translate(190,208) rotate(180) scale(1.6)"/>
+
+      <!-- roses -->
+      <use href="#rosePink" transform="translate(150,55) rotate(-6) scale(0.95)"/>
+      <use href="#rosePink" transform="translate(232,53) rotate(6) scale(0.95)"/>
+      <use href="#roseRed"  transform="translate(190,42) scale(0.8)"/>
+      <use href="#roseDeep" transform="translate(118,95) rotate(-12) scale(1.15)"/>
+      <use href="#roseDeep" transform="translate(262,92) rotate(10) scale(1.15)"/>
+      <use href="#roseRed"  transform="translate(190,110) scale(1.5)"/>
+      <use href="#roseRed"  transform="translate(68,140) rotate(-18) scale(1.0)"/>
+      <use href="#roseRed"  transform="translate(312,138) rotate(16) scale(1.0)"/>
+      <use href="#roseDeep" transform="translate(92,178) rotate(-24) scale(0.9)"/>
+      <use href="#roseDeep" transform="translate(288,175) rotate(22) scale(0.9)"/>
+      <use href="#roseRed"  transform="translate(190,172) rotate(2) scale(1.1)"/>
+      <use href="#rosePink" transform="translate(42,190) rotate(-32) scale(0.78)"/>
+      <use href="#rosePink" transform="translate(338,188) rotate(30) scale(0.78)"/>
+
+      <!-- bow knot -->
+      <circle cx="190" cy="188" r="9" fill="#b4813a"/>
+      <path d="M182,196 L172,236 L188,223 Z" fill="url(#ribbonGrad)"/>
+      <path d="M198,196 L208,236 L192,223 Z" fill="url(#ribbonGrad)"/>
+    </svg>
+  </div>
+  <div class="bloom-title">Pour toi, Sonia</div>
+  <p class="bloom-msg">Comme c'est la journée des girlfriends et que t'es sûrement encore célibataire, je me suis dit je serai celui qui va t'offrir des fleurs 🙂‍↕️ même si t'en veux pas, c'est par force façon 😝</p>
+  <p class="bloom-flirt">Cela dit... si jamais tu cherches un candidat pour changer ce statut, j'ai déjà les fleurs, la patience, et visiblement un peu trop de temps libre pour coder ce site 😏</p>
+  <div class="bloom-hint">Touche l'écran, partout ✨</div>
+</section>
+
+<script>
+  const envelope = document.getElementById('envelope');
+  const wrap = document.getElementById('envelopeWrap');
+  const scene1 = document.getElementById('scene1');
+  const scene2 = document.getElementById('scene2');
+
+  wrap.addEventListener('click', () => {
+    if (envelope.classList.contains('open')) return;
+    envelope.classList.add('open');
+    setTimeout(() => {
+      scene1.classList.add('hide');
+      scene2.classList.add('show');
+    }, 550);
+  });
+
+  // Bloom burst: flowers & hearts on click/tap
+  const bloomEmojis = ['🌸','🌷','💐','🌹','❤️','💕','💗'];
+  const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function spawnBurst(cx, cy){
+    if (reduceMotionQuery.matches) return;
+    const count = 10 + Math.floor(Math.random()*6);
+    for (let i=0;i<count;i++){
+      const el = document.createElement('span');
+      el.className = 'burst-item';
+      el.textContent = bloomEmojis[Math.floor(Math.random()*bloomEmojis.length)];
+
+      const angle = Math.random()*Math.PI*2;
+      const dist = 60 + Math.random()*160;
+      const x1 = Math.cos(angle)*dist;
+      const y1 = Math.sin(angle)*dist - 40; // slight upward bias
+      const scale = 0.8 + Math.random()*1.1;
+      const rot = (Math.random()*260 - 130) + 'deg';
+      const dur = (0.7 + Math.random()*0.6) + 's';
+
+      el.style.setProperty('--x0', '0px');
+      el.style.setProperty('--y0', '0px');
+      el.style.setProperty('--x1', x1+'px');
+      el.style.setProperty('--y1', y1+'px');
+      el.style.setProperty('--scale', scale);
+      el.style.setProperty('--rot', rot);
+      el.style.setProperty('--dur', dur);
+      el.style.left = cx+'px';
+      el.style.top = cy+'px';
+
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }
+  }
+
+  scene2.addEventListener('click', (e) => {
+    spawnBurst(e.clientX, e.clientY);
+  });
+  scene2.addEventListener('touchstart', (e) => {
+    if (e.touches && e.touches[0]){
+      spawnBurst(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, {passive:true});
+
+  // Ambient floating hearts
+  const canvas = document.getElementById('hearts');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const colors = ['#e0607e','#f0a8bd','#c23a5c','#f6cfdb'];
+  const hearts = Array.from({length: reduceMotion ? 0 : 16}, () => ({
+    x: Math.random()*W,
+    y: H + Math.random()*H,
+    size: 8 + Math.random()*14,
+    speed: 0.25 + Math.random()*0.5,
+    drift: (Math.random()-0.5)*0.4,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    opacity: 0.15 + Math.random()*0.25
+  }));
+
+  function drawHeart(x,y,size,color,opacity){
+    ctx.save();
+    ctx.globalAlpha = opacity;
+    ctx.translate(x,y);
+    ctx.scale(size/16, size/16);
+    ctx.beginPath();
+    ctx.moveTo(0,4);
+    ctx.bezierCurveTo(0,-2,-8,-2,-8,4);
+    ctx.bezierCurveTo(-8,10,0,14,0,18);
+    ctx.bezierCurveTo(0,14,8,10,8,4);
+    ctx.bezierCurveTo(8,-2,0,-2,0,4);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function animate(){
+    ctx.clearRect(0,0,W,H);
+    hearts.forEach(h => {
+      h.y -= h.speed;
+      h.x += h.drift;
+      if (h.y < -20){ h.y = H + 20; h.x = Math.random()*W; }
+      drawHeart(h.x,h.y,h.size,h.color,h.opacity);
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+</script>
+</body>
+</html>
